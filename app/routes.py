@@ -1,10 +1,7 @@
-# Основной файл сервера
-from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-from routes import handle_routes
+from http.server import BaseHTTPRequestHandler
 
-HOST = '192.168.1.118'
-PORT = 8080
+from app.utils import handle_routes  # Импорт обработчика маршрутов
 
 
 class MyHandler(BaseHTTPRequestHandler):
@@ -30,12 +27,3 @@ class MyHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(response).encode("utf-8"))
-
-
-def run():
-    print('Server started http://{host}:{port}'.format(host=HOST, port=PORT))
-    server = HTTPServer((HOST, PORT), MyHandler)
-    server.serve_forever()
-
-if __name__ == "__main__":
-    run()
