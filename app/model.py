@@ -10,8 +10,32 @@ class CurrencyModel:
 
     @staticmethod
     def get_currency_by_code(code):
-        query = "SELECT * FROM currencies WHERE code = ?"
-        return get_currencies_from_db(query, (code,))
+        """Проверяет, существует ли валюта с данным кодом."""
+        try:
+            conn = sqlite3.connect('database/currency_exchange.db')
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM currencies WHERE code = ?", (code,))
+            result = cursor.fetchone()
+            conn.close()
+            return result
+        except sqlite3.Error as e:
+            print(f"Database error in get_currency_by_code: {e}")
+            raise
+
+    @staticmethod
+    def insert_currency(name, code, sign):
+        """Добавляет новую валюту в базу данных."""
+        try:
+            conn = sqlite3.connect('database/currency_exchange.db')
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO currencies (Code, FullName, Sign) VALUES (?, ?, ?)", (code, name, sign)
+            )
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error in insert_currency: {e}")
+            raise
 
 
 def get_currencies_from_db(query, params=()):

@@ -1,5 +1,5 @@
 # Логика преобразования данных в словари
-from app.model import CurrencyModel
+from app.model import CurrencyModel  # Работа с моделью
 
 
 class CurrencyService:
@@ -18,3 +18,19 @@ class CurrencyService:
         if rows:
             return CurrencyService.format_currency_row(rows[0])
         return None
+
+    @staticmethod
+    def add_currency(name, code, sign):
+        try:
+            # Проверяем, существует ли валюта с таким кодом
+            existing_currency = CurrencyModel.get_currency_by_code(code)
+            if existing_currency:
+                return 'exists'
+
+            # Добавляем новую валюту
+            CurrencyModel.insert_currency(name, code, sign)
+            return 'success'
+
+        except Exception as e:
+            print(f"Error in CurrencyService.add_currency: {e}")
+            raise

@@ -35,5 +35,22 @@ def handle_routes(path, method, data=None):
     elif method == "POST":
         if path == "/data":
             return {"received": data}, 200, "application/json"
+        elif path == '/currencies':
+            try:
+                # Проверяем, переданы ли все необходимые данные
+                required_fields = ["name", "code", "sign"]
+                for field in required_fields:
+                    if field not in data or not data[field].strip():
+                        return {"error 400": f"Missing required field: {field}"}, 400, "application/json"
+
+                # Добавляем валюту через сервис
+                result = CurrencyService.add_currency(data['name'], data['code'], data['sign'])
+                if result == 'exists':
+                    return {'error 409': "Currency with this code already exists"}, 409, "application/json"
+                elif result == 'success':
+                    return {"message": "Currency added successfully"}, 201, "application/json"
+            except Exception:
+                return {"error 500": "Internal Server Error"}, 500, "application/json"
+
         else:
             return {"error 404": "Not Found"}, 404, "application/json"
