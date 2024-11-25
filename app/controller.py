@@ -1,4 +1,5 @@
-from app.service import CurrencyService  # Работа с бизнес-логикой
+from app.services.currency_service import CurrencyService  # Работа с бизнес-логикой
+from app.services.exchange_rate_service import ExchangeRateService
 
 
 # Обработчики маршрутов
@@ -29,12 +30,21 @@ def handle_routes(path, method, data=None):
             except Exception:
                 return {"error 500": "Internal Server Error"}, 500, "application/json"
 
+        elif path == "/exchangeRates":
+            try:
+                exchange_rates = ExchangeRateService.get_all_exchange_rates()  # Получение всех обменных курсов из БД
+                return exchange_rates, 200, "application/json"
+            except Exception:
+                return {"error 500": "Internal Server Error"}, 500, "application/json"
+
+
         else:
             return {"error 404": "Not Found"}, 404, "application/json"
 
     elif method == "POST":
         if path == "/data":
             return {"received": data}, 200, "application/json"
+
         elif path == '/currencies':
             try:
                 # Проверяем, переданы ли все необходимые данные

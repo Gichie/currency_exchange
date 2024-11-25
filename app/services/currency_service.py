@@ -1,5 +1,5 @@
 # Логика преобразования данных в словари
-from app.model import CurrencyModel  # Работа с моделью
+from app.models.currency_model import CurrencyModel  # Работа с моделью
 
 
 class CurrencyService:
@@ -16,7 +16,7 @@ class CurrencyService:
     def get_currency(code):
         rows = CurrencyModel.get_currency_by_code(code)
         if rows:
-            return CurrencyService.format_currency_row(rows[0])
+            return CurrencyService.format_currency_row(rows)
         return None
 
     @staticmethod
