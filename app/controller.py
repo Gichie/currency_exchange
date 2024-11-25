@@ -20,13 +20,26 @@ def handle_routes(path, method, data=None):
             currency_code = path[len("/currency/"):].upper().strip()
             if not currency_code:
                 return {"error 400": "Currency code is missing in the URL"}, 400, "application/json"
-
             try:
                 # Поиск валюты в базе данных
                 currency = CurrencyService.get_currency(currency_code)
                 if not currency:  # Если результат пустой
                     return {"error 404": f"Currency '{currency_code}' not found"}, 404, "application/json"
                 return currency, 200, "application/json"
+            except Exception:
+                return {"error 500": "Internal Server Error"}, 500, "application/json"
+
+        elif path.startswith("/exchangeRate/"):
+            base_currency = path[len("/exchangeRate/"):-3].upper().strip()
+            target_currency = path[len("/exchangeRate/")+3:].upper().strip()
+            if not base_currency or not target_currency:
+                return {"error 400": "Currency codes of the pair are missing in the URL"}, 400, "application/json"
+            try:
+                # Получаем обменный курс через сервис
+                exchange_rate = ExchangeRateService.get_exchange_rate_by_pair(base_currency, target_currency)
+                if not exchange_rate:
+                    return {"error 404": f"Exchange rate for pair '{base_currency}{target_currency}' not found"}, 404, "application/json"
+                return exchange_rate, 200, "application/json"
             except Exception:
                 return {"error 500": "Internal Server Error"}, 500, "application/json"
 
