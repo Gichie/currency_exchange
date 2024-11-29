@@ -8,51 +8,55 @@ from app.view import ResponseBuilder
 class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            # Передаем путь и метод в контроллер
-            response_data, status, content_type = handle_routes(self.path, method="GET")
+            # Передача запроса в обработчик маршрутов
+            response, status, content_type = handle_routes(self.path, method="GET")
+            self.send_response(status)
+            self.send_header("Content-type", content_type)
+            self.end_headers()
+            self.wfile.write(response)
 
-            # Используем представление для формирования ответа
-            response_body, status, content_type = ResponseBuilder.json_response(
-                response_data, status, content_type
-            )
-            self._send_response(response_body, status, content_type)
         except Exception as e:
-            # Обрабатываем необработанные ошибки
-            print(f"Unhandled error during GET request: {e}")
-            response_body, status, content_type = ResponseBuilder.error_response(
-                "Internal Server Error"
+            # Логирование и возврат ошибки
+            response, status, content_type = ResponseBuilder.error_response(
+                "Internal Server Error", status=500
             )
-            self._send_response(response_body, status, content_type)
+            self.send_response(status)
+            self.send_header("Content-type", content_type)
+            self.end_headers()
+            self.wfile.write(response)
+            print(f"Unhandled error during GET request: {e}")
 
     def do_POST(self):
         try:
-            # Читаем длину содержимого
+            # Читаем данные из тела запроса
             content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length).decode("utf-8")
+            post_data = self.rfile.read(content_length).decode('utf-8')
 
-            # Парсим данные из формы (x-www-form-urlencoded)
-            form_data = parse_qs(post_data)
-            # Преобразуем значения в форму строки (они передаются списками)
-            form_data = {key: value[0] for key, value in form_data.items()}
+            # Разбор данных формы
+            if self.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                data = parse_qs(post_data)
+                # Преобразование значений из списка в строки
+                data = {key: value[0] for key, value in data.items()}
+            else:
+                data = {}
 
-            # Передаем данные маршрутизатору
-            response_data, status, content_type = handle_routes(
-                self.path, method="POST", data=form_data
-            )
-
-            # Формируем и отправляем ответ
-            response_body, status, content_type = ResponseBuilder.json_response(
-                response_data, status, content_type
-            )
-            self._send_response(response_body, status, content_type)
-
+            # Передача данных в обработчик маршрутов
+            response, status, content_type = handle_routes(self.path, method="POST", data=data)
+            self.send_response(status)
+            self.send_header("Content-type", content_type)
+            self.end_headers()
+            self.wfile.write(response)
         except Exception as e:
-            # В случае ошибки отправляем 500
-            print(f"Unhandled error during POST request: {e}")
-            response_body, status, content_type = ResponseBuilder.error_response(
-                "Internal Server Error"
+            # Логирование и возврат ошибки
+            response, status, content_type = ResponseBuilder.error_response(
+                "Internal Server Error", status=500
             )
-            self._send_response(response_body, status, content_type)
+            self.send_response(status)
+            self.send_header("Content-type", content_type)
+            self.end_headers()
+            self.wfile.write(response)
+            print(f"Unhandled error during POST request: {e}")
+
 
     def _send_response(self, body, status, content_type):
         """Формирует и отправляет ответ клиенту."""
