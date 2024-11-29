@@ -12,38 +12,40 @@ def handle_routes(path, method, data=None):
         elif path == "/currencies":
             try:
                 currencies = CurrencyService.get_all_currencies()  # Получение данных из базы
-                return currencies, 200, "application/json"
-            except Exception:
+                return ResponseBuilder.json_response(currencies, status=200)
+            except Exception as e:
+                print(f"Error handling /currencies: {e}")
                 return ResponseBuilder.error_response("Internal Server Error", status=500)
 
         elif path.startswith("/currency/"):
             # Извлекаем код валюты из URL
             currency_code = path[len("/currency/"):].upper().strip()
             if not currency_code:
-                return {"error 400": "Currency code is missing in the URL"}, 400, "application/json"
+                return ResponseBuilder.error_response({"error 400": "Currency code is missing in the URL"}, status=400)
             try:
                 # Поиск валюты в базе данных
                 currency = CurrencyService.get_currency(currency_code)
                 if not currency:  # Если результат пустой
-                    return {"error 404": f"Currency '{currency_code}' not found"}, 404, "application/json"
-                return currency, 200, "application/json"
+                    return ResponseBuilder.error_response({"error 404": "Currency not found"}, status=404)
+                return ResponseBuilder.json_response(currency, status=200)
             except Exception:
-                return {"error 500": "Internal Server Error"}, 500, "application/json"
+                return ResponseBuilder.error_response({"error 500": "Internal Server Error"}, status=500)
 
         elif path.startswith("/exchangeRate/"):
             base_currency = path[len("/exchangeRate/"):-3].upper().strip()
             target_currency = path[len("/exchangeRate/") + 3:].upper().strip()
             if not base_currency or not target_currency:
-                return {"error 400": "Currency codes of the pair are missing in the URL"}, 400, "application/json"
+                return ResponseBuilder.error_response({"error 400": "Base currency is missing in the URL"}, status=400)
             try:
                 # Получаем обменный курс через сервис
                 exchange_rate = ExchangeRateService.get_exchange_rate_by_pair(base_currency, target_currency)
                 if not exchange_rate:
-                    return {
-                        "error 404": f"Exchange rate for pair '{base_currency}{target_currency}' not found"}, 404, "application/json"
-                return exchange_rate, 200, "application/json"
+                    return ResponseBuilder.error_response(
+                        {"error 404": f"Exchange rate for pair '{base_currency}{target_currency}' not found"},
+                        status=404)
+                return ResponseBuilder.json_response(exchange_rate, status=200)
             except Exception:
-                return {"error 500": "Internal Server Error"}, 500, "application/json"
+                return ResponseBuilder.error_response({"error 500": "Internal Server Error"}, status=500)
 
         elif path == "/exchangeRates":
             try:
@@ -53,28 +55,25 @@ def handle_routes(path, method, data=None):
                 return ResponseBuilder.error_response("Internal Server Error", status=500)
 
         else:
-            return {"error 404": "Not Found"}, 404, "application/json"
+            return ResponseBuilder.error_response("Not Found", status=404)
 
     elif method == "POST":
-        if path == "/data":
-            return {"received": data}, 200, "application/json"
-
-        elif path == '/currencies':
+        if path == '/currencies':
             try:
                 # Проверяем, переданы ли все необходимые данные
                 required_fields = ["name", "code", "sign"]
                 for field in required_fields:
                     if field not in data or not data[field].strip():
-                        return {"error 400": f"Missing required field: {field}"}, 400, "application/json"
+                        return ResponseBuilder.error_response({f'error 400": "Missing field: {field}'}, status=400)
 
                 # Добавляем валюту через сервис
                 result = CurrencyService.add_currency(data['name'], data['code'], data['sign'])
                 if result == 'exists':
-                    return {'error 409': "Currency with this code already exists"}, 409, "application/json"
+                    return ResponseBuilder.error_response("Currency already exists", status=409)
                 elif result == 'success':
-                    return {"message": "Currency added successfully"}, 201, "application/json"
+                    return ResponseBuilder.json_response({"message": "Currency added successfully"}, status=201)
             except Exception:
-                return {"error 500": "Internal Server Error"}, 500, "application/json"
+                return ResponseBuilder.error_response("Internal Server Error", status=500)
 
         elif path == '/exchangeRates':
             # Проверяем, переданы ли все необходимые данные
@@ -90,11 +89,11 @@ def handle_routes(path, method, data=None):
             try:
                 rate = float(data.get("rate"))
             except ValueError:
-                return {"error 400": f"Invalid rate format"}, 400, "application/json"
+                return ResponseBuilder.error_response({"error 400": f"Invalid rate format"}, 400)
 
             # Добавляем новый обменный курс через сервис
             response, status = ExchangeRateService.add_exchange_rate(base_currency_code, target_currency_code, rate)
-            return response, status, "application/json"
+            return ResponseBuilder.json_response(response, status=status)
 
         else:
             return ResponseBuilder.error_response("Not Found", status=404)

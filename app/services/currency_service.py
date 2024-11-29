@@ -9,8 +9,11 @@ class CurrencyService:
 
     @staticmethod
     def get_all_currencies():
-        rows = CurrencyModel.get_all_currencies()
-        return [CurrencyService.format_currency_row(row) for row in rows]
+        try:
+            rows = CurrencyModel.get_all_currencies()
+            return [CurrencyService.format_currency_row(row) for row in rows]
+        except Exception as e:
+            return {"error": str(e)}, 500
 
     @staticmethod
     def get_currency(code):
