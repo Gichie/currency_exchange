@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs
 
-from app.controller import handle_routes  # Импорт обработчика маршрутов
+from app.controllers.base_controller import handle_routes  # Импорт обработчика маршрутов
 from app.view import ResponseBuilder
 
 
@@ -56,7 +56,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(response)
             print(f"Unhandled error during POST request: {e}")
-
 
     def _send_response(self, body, status, content_type):
         """Формирует и отправляет ответ клиенту."""

@@ -2,9 +2,9 @@ import requests
 
 url = "http://192.168.1.118:8080/currencies"
 data = {
-    "name": "British Pound",
-    "code": "GBP",
-    "sign": "£"
+    "name": "Test1",
+    "code": "TST1",
+    "sign": "Test1£"
 }
 
 response = requests.post(url, data=data)

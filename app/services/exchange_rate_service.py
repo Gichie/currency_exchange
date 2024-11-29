@@ -1,6 +1,7 @@
 import sqlite3
 
 from app.models.exchange_rate_model import ExchangeRateModel
+from app.services.currency_service import CurrencyService
 
 
 class ExchangeRateService:
@@ -54,3 +55,24 @@ class ExchangeRateService:
             return {"message": "Exchange rate added successfully"}, 201
         except sqlite3.Error:
             return {"error 500": "Internal Server Error"}, 500
+
+    @staticmethod
+    def update_exchange_rate(base_currency_code, target_currency_code, rate):
+        """Обновляет существующий обменный курс."""
+        # Получение данных валют
+        base_currency = CurrencyService.get_currency(base_currency_code)
+        target_currency = CurrencyService.get_currency(target_currency_code)
+
+        if not base_currency:
+            raise ValueError(f"Base currency '{base_currency_code}' not found")
+        if not target_currency:
+            raise ValueError(f"Target currency '{target_currency_code}' not found")
+
+        # Обновление курса
+        updated_row = ExchangeRateModel.update_exchange_rate(base_currency["id"], target_currency["id"], rate)
+
+        if not updated_row:
+            return None  # Курс для валютной пары не найден
+
+        # Форматирование результата
+        return ExchangeRateService.format_exchange_rate(updated_row)

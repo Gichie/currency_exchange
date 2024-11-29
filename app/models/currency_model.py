@@ -10,7 +10,7 @@ class CurrencyModel:
 
     @staticmethod
     def get_currency_by_code(code):
-        """Проверяет, существует ли валюта с данным кодом."""
+        """Возвращает строку валюты по её коду."""
         try:
             conn = sqlite3.connect('database/currency_exchange.db')
             cursor = conn.cursor()
