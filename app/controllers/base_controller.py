@@ -3,7 +3,6 @@ from app.controllers.exchange_rate_controller import ExchangeRateController
 from app.view import ResponseBuilder
 
 
-
 # Обработчики маршрутов
 def handle_routes(path, method, data=None):
     if method == "GET":
@@ -31,4 +30,9 @@ def handle_routes(path, method, data=None):
         else:
             return ResponseBuilder.error_response("Not Found", status=404)
 
-
+    elif method == "PATCH":
+        if path.startswith("/exchangeRates/"):
+            currency_pair = path[len("/exchangeRates/"):].upper().strip()
+            return ExchangeRateController.update_exchange_rate(currency_pair, data)
+        else:
+            return ResponseBuilder.error_response("Not Found", status=404)

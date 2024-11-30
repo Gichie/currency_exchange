@@ -73,45 +73,29 @@ class ExchangeRateModel:
 
     @staticmethod
     def update_exchange_rate(base_currency_id: int, target_currency_id: int, rate: float):
-        """Обновляет обменный курс в базе данных."""
+        """Обновляет существующий обменный курс в базе данных."""
         try:
-            conn = sqlite3.connect('database/currency_exchange.db')
-            cursor = conn.cursor()
-
+            connection = sqlite3.connect('database/currency_exchange.db')
+            cursor = connection.cursor()
             # Обновление курса
             cursor.execute("""
                 UPDATE ExchangeRates
                 SET Rate = ?
                 WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?
+                RETURNING id, BaseCurrencyId, TargetCurrencyId, rate
                 """,
-                (rate, base_currency_id, target_currency_id)
-            )
-            # Проверка количества обновлённых строк
-            if cursor.rowcount == 0:
-                conn.close()
-            return None  # Обменный курс не найден
-
-            # Получение обновлённой строки
-            cursor.execute(
-                """
-                SELECT er.ID, 
-                       bc.ID, bc.Code, bc.FullName, bc.Sign,
-                       tc.ID, tc.Code, tc.FullName, tc.Sign, 
-                       er.Rate
-                FROM ExchangeRates er
-                JOIN Currencies bc ON er.BaseCurrencyId = bc.ID
-                JOIN Currencies tc ON er.TargetCurrencyId = tc.ID
-                WHERE er.BaseCurrencyId = ? AND er.TargetCurrencyId = ?
-                """,
-                (base_currency_id, target_currency_id)
-            )
+                           (rate, base_currency_id, target_currency_id)
+                           )
             updated_row = cursor.fetchone()
-            conn.close()
+            connection.commit()
+            # Возвращаем обновленную строку
             return updated_row
         except sqlite3.Error as e:
             print(f"Database error in update_exchange_rate: {e}")
-            raise
-
+            return None
+        finally:
+            if connection:
+                connection.close()
 
 def get_exchange_rates_from_db(query, params=()):
     try:

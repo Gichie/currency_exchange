@@ -55,15 +55,25 @@ class ExchangeRateController:
             return ResponseBuilder.error_response("Internal Server Error", status=500)
 
     @staticmethod
-    def update_exchange_rate(currency_pair, rate):
+    def update_exchange_rate(currency_pair, data):
         """Обновляет курс обмена по указанной валютной паре."""
         if len(currency_pair) != 6:
             return ResponseBuilder.error_response("Invalid currency pair", status=400)
+
+        # Проверяем наличие поля rate в данных
+        if "rate" not in data or not data["rate"].strip():
+            return ResponseBuilder.error_response("Missing required field: rate", status=400)
+
         try:
             base_currency = currency_pair[:3].upper()
             target_currency = currency_pair[3:].upper()
-            response, status = ExchangeRateService.update_exchange_rate(base_currency, target_currency, rate)
-            return ResponseBuilder.json_response(response, status=status)
+            rate = float(data.get("rate"))
+
+            response = ExchangeRateService.update_exchange_rate(base_currency, target_currency, rate)
+            if not response:
+                return ResponseBuilder.error_response("Exchange rate not found", status=404)
+        except ValueError:
+            return ResponseBuilder.error_response({"error": "Invalid rate format"}, status=400)
         except Exception as e:
             print(f"Error in ExchangeRateController.update_exchange_rate: {e}")
             return ResponseBuilder.error_response("Internal Server Error", status=500)
