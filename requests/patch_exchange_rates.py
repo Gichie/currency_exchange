@@ -1,7 +1,7 @@
 import requests
 
 url = "http://192.168.1.118:8080/exchangeRate/USDEUR"
-data = {"rate": "1.2"}
+data = {"rate": "1.3"}
 
 response = requests.patch(url, data=data)
 
