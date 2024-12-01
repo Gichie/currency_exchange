@@ -57,6 +57,42 @@ class MyHandler(BaseHTTPRequestHandler):
             self.wfile.write(response)
             print(f"Unhandled error during POST request: {e}")
 
+    def do_PATCH(self):
+        try:
+            # Извлечение пути
+            path = self.path
+
+            # Чтение тела запроса
+            content_length = int(self.headers.get('Content-Length', 0))
+            patch_data = self.rfile.read(content_length).decode('utf-8')
+
+            # Разбор данных формы
+            if self.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                data = parse_qs(patch_data)
+                data = {key: value[0] for key, value in data.items()}
+            else:
+                data = {}
+
+            # Передача маршрута в обработчик
+            response, status, content_type = handle_routes(path, method="PATCH", data=data)
+
+            # Ответ клиенту
+            self.send_response(status)
+            self.send_header("Content-type", content_type)
+            self.end_headers()
+            self.wfile.write(response)
+
+        except Exception as e:
+            # Возврат ошибки
+            response, status, content_type = ResponseBuilder.error_response(
+                "Internal Server Error", status=500
+            )
+            self.send_response(status)
+            self.send_header("Content-type", content_type)
+            self.end_headers()
+            self.wfile.write(response)
+            print(f"Unhandled error during PATCH request: {e}")
+
     def _send_response(self, body, status, content_type):
         """Формирует и отправляет ответ клиенту."""
         self.send_response(status)

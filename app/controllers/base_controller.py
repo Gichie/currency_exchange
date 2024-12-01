@@ -31,8 +31,8 @@ def handle_routes(path, method, data=None):
             return ResponseBuilder.error_response("Not Found", status=404)
 
     elif method == "PATCH":
-        if path.startswith("/exchangeRates/"):
-            currency_pair = path[len("/exchangeRates/"):].upper().strip()
+        if path.startswith("/exchangeRate/"):
+            currency_pair = path[len("/exchangeRate/"):].upper().strip()
             return ExchangeRateController.update_exchange_rate(currency_pair, data)
         else:
             return ResponseBuilder.error_response("Not Found", status=404)

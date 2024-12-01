@@ -1,14 +1,11 @@
 import requests
 
-url = "http://192.168.1.118:8080/exchangeRate/USDRUB"
-data = {"rate": 148}
+url = "http://192.168.1.118:8080/exchangeRate/USDEUR"
+data = {"rate": "1.2"}
 
-try:
-    response = requests.patch(url, data=data)
-    response.raise_for_status()  # Проверка на ошибки HTTP
-    print("Status Code:", response.status_code)
-    print("Response:", response.json())
-except requests.exceptions.HTTPError as err:
-    print("HTTP error occurred:", err)
-except Exception as e:
-    print("An error occurred:", e)
+response = requests.patch(url, data=data)
+
+if response.headers.get('Content-Type') == 'application/json':
+    print(f"Response JSON: {response.json()}")
+else:
+    print(f"Response Text: {response.text}")
