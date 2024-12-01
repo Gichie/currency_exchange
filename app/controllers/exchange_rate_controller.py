@@ -72,6 +72,7 @@ class ExchangeRateController:
             response = ExchangeRateService.update_exchange_rate(base_currency, target_currency, rate)
             if not response:
                 return ResponseBuilder.error_response("Exchange rate not found", status=404)
+            return ResponseBuilder.json_response(response, status=200)
         except ValueError:
             return ResponseBuilder.error_response({"error": "Invalid rate format"}, status=400)
         except Exception as e:

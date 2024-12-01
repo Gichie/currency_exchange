@@ -74,7 +74,15 @@ class MyHandler(BaseHTTPRequestHandler):
                 data = {}
 
             # Передача маршрута в обработчик
-            response, status, content_type = handle_routes(path, method="PATCH", data=data)
+            response = handle_routes(path, method="PATCH", data=data)
+            if response is None:
+                response, status, content_type = ResponseBuilder.error_response("Not Found", status=404)
+            else:
+                # Убедитесь, что response имеет правильный формат
+                if isinstance(response, tuple) and len(response) == 3:
+                    response, status, content_type = response
+                else:
+                    response, status, content_type = ResponseBuilder.error_response("Internal Server Error", status=500)
 
             # Ответ клиенту
             self.send_response(status)
@@ -83,6 +91,7 @@ class MyHandler(BaseHTTPRequestHandler):
             self.wfile.write(response)
 
         except Exception as e:
+            print(f"Error during PATCH request: {e}")  # Логирование ошибки
             # Возврат ошибки
             response, status, content_type = ResponseBuilder.error_response(
                 "Internal Server Error", status=500

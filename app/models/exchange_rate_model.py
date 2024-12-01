@@ -88,9 +88,13 @@ class ExchangeRateModel:
             )
 
             # Проверка количества обновлённых строк
+            print(f"Rows updated: {cursor.rowcount}")
             if cursor.rowcount == 0:
                 conn.close()
                 return None  # Обменный курс не найден
+
+            # Фиксация изменений
+            conn.commit()
 
             # Получение обновлённой строки
             cursor.execute(
