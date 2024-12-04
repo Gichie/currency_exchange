@@ -1,6 +1,7 @@
 from app.controllers.currency_cotroller import CurrencyController
 from app.controllers.exchange_rate_controller import ExchangeRateController
 from app.view import ResponseBuilder
+import re
 
 
 # Обработчики маршрутов
@@ -19,6 +20,12 @@ def handle_routes(path, method, data=None):
             return ExchangeRateController.get_exchange_rate(currency_pair)
         elif path == "/exchangeRates":
             return ExchangeRateController.get_all_exchange_rates()
+        elif path.startswith('/exchange?from='):
+            pattern = r'/exchange\?from=(\w{3})&to=(\w{3})&amount=(\d+)'
+            match = re.search(pattern, path)
+            currency_pair = f'{match[1]}{match[2]}'
+            amount = float(match[3])
+            return ExchangeRateController.transfers_currency(currency_pair, amount)
         else:
             return ResponseBuilder.error_response("Not Found", status=404)
 

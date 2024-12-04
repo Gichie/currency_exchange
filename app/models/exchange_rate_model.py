@@ -125,7 +125,6 @@ def get_exchange_rates_from_db(query, params=()):
         cursor.execute(query, params)
         rows = cursor.fetchall()
         conn.close()
-        print(rows)
         return rows
     except sqlite3.Error as e:
         print(f"Database error: {e}")

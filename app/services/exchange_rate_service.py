@@ -76,3 +76,66 @@ class ExchangeRateService:
 
         # Форматирование результата
         return ExchangeRateService.format_exchange_rate(updated_row)
+
+    @staticmethod
+    def calculate_exchange(base_currency, target_currency, amount):
+        try:
+            # Проверяем, существуют ли валюты
+            base_currency = CurrencyService.get_currency(base_currency)
+            target_currency = CurrencyService.get_currency(target_currency)
+
+            if not base_currency:
+                return {"error": f"Base currency '{base_currency}' not found"}
+            if not target_currency:
+                return {"error": f"Target currency '{target_currency}' not found"}
+
+            # 1. Прямой курс A -> B
+            direct_rate = ExchangeRateModel.get_exchange_rate_by_pair(base_currency['code'], target_currency['code'])
+            if direct_rate:
+                rate = direct_rate[0][9]  # Курс находится в 9-й колонке
+                converted_amount = amount * rate
+                return ExchangeRateService.format_exchange_response(base_currency, target_currency, rate, amount,
+                                                                    converted_amount)
+
+            # 2. Обратный курс B -> A
+            reverse_rate = ExchangeRateModel.get_exchange_rate_by_pair(target_currency['code'], base_currency['code'])
+            if reverse_rate:
+                rate = 1 / reverse_rate[0][9]
+                converted_amount = amount * rate
+                return ExchangeRateService.format_exchange_response(base_currency, target_currency, rate, amount,
+                                                                    converted_amount)
+
+            # 3. Вычисляем через USD (или базовую валюту системы)
+            usd_to_base = ExchangeRateModel.get_exchange_rate_by_pair("USD", base_currency['code'])
+            usd_to_target = ExchangeRateModel.get_exchange_rate_by_pair("USD", target_currency['code'])
+            if usd_to_base and usd_to_target:
+                rate = (1 / usd_to_base[0][9]) * usd_to_target[0][9]
+                converted_amount = amount * rate
+                return ExchangeRateService.format_exchange_response(base_currency, target_currency, rate, amount,
+                                                                    converted_amount)
+
+            return {"error": f"Exchange rate not found for pair '{base_currency}' to '{target_currency}'"}
+        except Exception as e:
+            print(f"Error in calculate_exchange: {e}")
+            raise
+
+    @staticmethod
+    def format_exchange_response(base_currency, target_currency, rate, amount, converted_amount):
+        """Форматирует ответ конвертации."""
+        return {
+            "baseCurrency": {
+                "id": base_currency["id"],
+                "name": base_currency["name"],
+                "code": base_currency["code"],
+                "sign": base_currency["symbol"],
+            },
+            "targetCurrency": {
+                "id": target_currency["id"],
+                "name": target_currency["name"],
+                "code": target_currency["code"],
+                "sign": target_currency["symbol"],
+            },
+            "rate": round(rate, 4),
+            "amount": round(amount, 2),
+            "convertedAmount": round(converted_amount, 2),
+        }

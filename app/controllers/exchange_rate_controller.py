@@ -19,6 +19,34 @@ class ExchangeRateController:
             return ResponseBuilder.error_response("Internal Server Error", status=500)
 
     @staticmethod
+    def transfers_currency(currency_pair, amount):
+        if len(currency_pair) != 6:
+            return ResponseBuilder.error_response("Invalid currency pair", status=400)
+        try:
+            base_currency = currency_pair[:3].upper()
+            target_currency = currency_pair[3:].upper()
+            # Вызываем сервис для расчёта
+            result = ExchangeRateService.calculate_exchange(base_currency, target_currency, amount)
+
+            if "error" in result:
+                return ResponseBuilder.error_response(result["error"], status=404)
+
+            return ResponseBuilder.json_response(result, status=200)
+
+        except Exception as e:
+            print(f"Error in ExchangeRateController.transfers_currency: {e}")
+            return ResponseBuilder.error_response("Internal Server Error", status=500)
+
+    @staticmethod
+    def converts_currencies(case, exchange_rate):
+        if case == 1:
+            return exchange_rate['rate']
+        elif case == 2:
+            return 1 / exchange_rate['rate']
+
+
+
+    @staticmethod
     def add_exchange_rate(data):
         """Добавляет новый обменный курс."""
         required_fields = ['baseCurrencyCode', 'targetCurrencyCode', 'rate']
@@ -42,7 +70,6 @@ class ExchangeRateController:
         except Exception as e:
             print(f"Error in ExchangeRateController.add_exchange_rate: {e}")
             return ResponseBuilder.error_response("Internal Server Error", status=500)
-
 
     @staticmethod
     def get_all_exchange_rates():
