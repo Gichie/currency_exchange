@@ -1,14 +1,16 @@
 # Основной файл сервера
 from http.server import HTTPServer
 
-from app.routes import MyHandler  # Импортируем обработчик запросов
+from app.routes.handler import MyHandler
+
+# Импортируем обработчик запросов
 
 HOST = '192.168.1.118'
 PORT = 8080
 
 
 def run():
-    print('Server started http://{host}:{port}'.format(host=HOST, port=PORT))
+    print(f"Server started at http://{HOST}:{PORT}")
     server = HTTPServer((HOST, PORT), MyHandler)
     server.serve_forever()
 

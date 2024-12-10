@@ -1,45 +1,32 @@
-from app.controllers.currency_cotroller import CurrencyController
-from app.controllers.exchange_rate_controller import ExchangeRateController
-from app.view import ResponseBuilder
-import re
+from app.views.response_builder import ResponseBuilder
 
 
-# Обработчики маршрутов
-def handle_routes(path, method, data=None):
-    if method == "GET":
-        if path == "/":
-            return ResponseBuilder.json_response({"message": "Welcome to the backend!"}, status=200)
-        elif path == "/currencies":
-            return CurrencyController().get_all_currencies()
-        elif path.startswith("/currency/"):
-            # Извлекаем код валюты из URL
-            currency_code = path[len("/currency/"):].upper().strip()
-            return CurrencyController.get_currency(currency_code)
-        elif path.startswith("/exchangeRate/"):
-            currency_pair = path[len("/exchangeRate/"):].upper().strip()
-            return ExchangeRateController.get_exchange_rate(currency_pair)
-        elif path == "/exchangeRates":
-            return ExchangeRateController.get_all_exchange_rates()
-        elif path.startswith('/exchange?from='):
-            pattern = r'/exchange\?from=(\w{3})&to=(\w{3})&amount=(\d+)'
-            match = re.search(pattern, path)
-            currency_pair = f'{match[1]}{match[2]}'
-            amount = float(match[3])
-            return ExchangeRateController.transfers_currency(currency_pair, amount)
-        else:
-            return ResponseBuilder.error_response("Not Found", status=404)
+class BaseController:
+    @staticmethod
+    def handle_exceptions(func):
+        """
+        Декоратор для обработки исключений в методах контроллеров.
+        Если возникает ошибка, возвращает стандартный ответ с кодом 500.
+        """
 
-    elif method == "POST":
-        if path == '/currencies':
-            return CurrencyController.add_currency(data)
-        elif path == '/exchangeRates':
-            return ExchangeRateController.add_exchange_rate(data)
-        else:
-            return ResponseBuilder.error_response("Not Found", status=404)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                print(f"Unhandled exception in controller: {e}")
+                return ResponseBuilder.error_response("Internal Server Error", status=500)
 
-    elif method == "PATCH":
-        if path.startswith("/exchangeRate/"):
-            currency_pair = path[len("/exchangeRate/"):].upper().strip()
-            return ExchangeRateController.update_exchange_rate(currency_pair, data)
-        else:
-            return ResponseBuilder.error_response("Not Found", status=404)
+        return wrapper
+
+    @staticmethod
+    def validate_required_fields(data, required_fields):
+        """
+        Проверяет, что в данных присутствуют все обязательные поля.
+        Возвращает None, если все поля есть, иначе JSON-ответ с ошибкой.
+        """
+        missing_fields = [field for field in required_fields if not data.get(field)]
+        if missing_fields:
+            return ResponseBuilder.error_response(
+                f"Missing required fields: {', '.join(missing_fields)}", status=400
+            )
+        return None

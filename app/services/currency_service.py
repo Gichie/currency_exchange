@@ -1,39 +1,30 @@
-# Логика преобразования данных в словари
-from app.models.currency_model import CurrencyModel  # Работа с моделью
+from app.repositories.currency_repository import CurrencyRepository
 
 
 class CurrencyService:
     @staticmethod
-    def format_currency_row(row):
-        return {"id": row[0], "name": row[2], "code": row[1], "symbol": row[3]}
-
-    @staticmethod
     def get_all_currencies():
-        try:
-            rows = CurrencyModel.get_all_currencies()
-            return [CurrencyService.format_currency_row(row) for row in rows]
-        except Exception as e:
-            return {"error": str(e)}, 500
+        rows = CurrencyRepository.fetch_all()
+        return [CurrencyService.format_currency(row) for row in rows]
 
     @staticmethod
-    def get_currency(code):
-        rows = CurrencyModel.get_currency_by_code(code)
-        if rows:
-            return CurrencyService.format_currency_row(rows)
-        return None
+    def get_currency_by_code(code):
+        """Возвращает валюту по коду."""
+        currency = CurrencyRepository.fetch_by_code(code)
+        if not currency:
+            return None  # Возвращаем None, если валюта не найдена
+
+        # Преобразуем запись в словарь
+        return CurrencyService.format_currency(currency)
 
     @staticmethod
-    def add_currency(name, code, sign):
-        try:
-            # Проверяем, существует ли валюта с таким кодом
-            existing_currency = CurrencyModel.get_currency_by_code(code)
-            if existing_currency:
-                return 'exists'
+    def add_currency(data):
+        name, code, sign = data.get("name"), data.get("code"), data.get("sign")
+        if CurrencyRepository.fetch_by_code(code):
+            return {"error": "Currency already exists"}, 409
+        CurrencyRepository.insert(name, code, sign)
+        return {"message": "Currency added successfully"}, 201
 
-            # Добавляем новую валюту
-            CurrencyModel.insert_currency(name, code, sign)
-            return 'success'
-
-        except Exception as e:
-            print(f"Error in CurrencyService.add_currency: {e}")
-            raise
+    @staticmethod
+    def format_currency(row):
+        return {"id": row[0], "name": row[1], "code": row[2], "sign": row[3]}

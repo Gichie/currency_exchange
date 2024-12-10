@@ -2,9 +2,9 @@ import requests
 
 url = "http://192.168.1.118:8080/exchangeRates"
 data = {
-    "baseCurrencyCode": "EUR",
-    "targetCurrencyCode": "USD",
-    "rate": 148
+    "baseCurrencyCode": "USD",
+    "targetCurrencyCode": "RUB",
+    "rate": 100
 }
 
 response = requests.post(url, data=data)
