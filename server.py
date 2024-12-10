@@ -1,12 +1,13 @@
 # Основной файл сервера
+import os
 from http.server import HTTPServer
 
 from app.routes.handler import MyHandler
 
 # Импортируем обработчик запросов
 
-HOST = '192.168.1.118'
-PORT = 8080
+HOST = '0.0.0.0'
+PORT = int(os.environ.get('PORT', 8080))  # Получаем PORT из окружения
 
 
 def run():
