@@ -19,7 +19,7 @@ Currency Exchange API — это RESTful API, предназначенный д�
 
 ### 1. Склонируйте репозиторий
 
-git clone https://github.com/your-repository/currency-exchange-api.git
+git clone [https://github.com/your-repository/currency-exchange-api.git](https://github.com/Gichie/currency_exchange.git)
 cd currency-exchange-api
 
 ### 2. Инициализация базы данных
