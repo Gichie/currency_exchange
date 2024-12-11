@@ -4,6 +4,11 @@ import sqlite3
 class ExchangeRateModel:
     @staticmethod
     def get_all_exchange_rates():
+        """
+        Возвращает список всех обменных курсов.
+
+        :return: Список строк, представляющих обменные курсы.
+        """
         query = """
             SELECT 
                 er.ID,
@@ -23,7 +28,14 @@ class ExchangeRateModel:
         return get_exchange_rates_from_db(query)
 
     @staticmethod
-    def get_exchange_rate_by_pair(base_currency_code, target_currency_code):
+    def get_exchange_rate_by_pair(base_currency_code: str, target_currency_code: str):
+        """
+        Возвращает обменный курс для заданной пары валют.
+
+        :param base_currency_code: Код базовой валюты.
+        :param target_currency_code: Код целевой валюты.
+        :return: Информация о курсе в виде строки.
+        """
         query = """
                 SELECT 
                     er.ID,
@@ -44,20 +56,40 @@ class ExchangeRateModel:
         return get_exchange_rates_from_db(query, (base_currency_code, target_currency_code))
 
     @staticmethod
-    def get_currency_id_by_code(currency_code):
+    def get_currency_id_by_code(currency_code: str):
+        """
+        Возвращает идентификатор валюты по её коду.
+
+        :param currency_code: Код валюты (например, "USD").
+        :return: Идентификатор валюты или None, если валюта не найдена.
+        """
         query = 'SELECT ID FROM Currencies WHERE Code = ?'
         result = get_exchange_rates_from_db(query, (currency_code,))
         return result[0][0] if result else None
 
     @staticmethod
-    def check_exchange_rate_exists(base_currency_id, target_currency_id):
+    def check_exchange_rate_exists(base_currency_id: int, target_currency_id: int):
+        """
+        Проверяет, существует ли обменный курс между двумя валютами.
+
+        :param base_currency_id: Идентификатор базовой валюты.
+        :param target_currency_id: Идентификатор целевой валюты.
+        :return: True, если курс существует, иначе False.
+        """
         query = "SELECT 1 FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?"
         result = get_exchange_rates_from_db(query, (base_currency_id, target_currency_id))
         return bool(result)
 
     @staticmethod
-    def add_exchange_rate(base_currency_id, target_currency_id, rate):
-        """Добавляет обменный курс в базу данных."""
+    def add_exchange_rate(base_currency_id: int, target_currency_id: int, rate: float):
+        """
+        Добавляет обменный курс в базу данных.
+
+        :param base_currency_id: Идентификатор базовой валюты.
+        :param target_currency_id: Идентификатор целевой валюты.
+        :param rate: Курс обмена.
+        :return: None.
+        """
         try:
             conn = sqlite3.connect('database/currency_exchange.db')
             cursor = conn.cursor()
@@ -73,7 +105,14 @@ class ExchangeRateModel:
 
     @staticmethod
     def update_exchange_rate(base_currency_id: int, target_currency_id: int, rate: float):
-        """Обновляет существующий обменный курс в базе данных."""
+        """
+        Обновляет существующий обменный курс в базе данных.
+
+        :param base_currency_id: Идентификатор базовой валюты.
+        :param target_currency_id: Идентификатор целевой валюты.
+        :param rate: Новый курс обмена.
+        :return: Обновлённая информация о курсе или None, если курс не найден.
+        """
         try:
             conn = sqlite3.connect('database/currency_exchange.db')
             cursor = conn.cursor()
@@ -118,7 +157,14 @@ class ExchangeRateModel:
             raise
 
 
-def get_exchange_rates_from_db(query, params=()):
+def get_exchange_rates_from_db(query: str, params: tuple = ()):
+    """
+    Выполняет SQL-запрос для получения данных из базы.
+
+    :param query: SQL-запрос.
+    :param params: Параметры для SQL-запроса (по умолчанию пустой кортеж).
+    :return: Результат выполнения запроса в виде списка строк.
+    """
     try:
         conn = sqlite3.connect('database/currency_exchange.db')
         cursor = conn.cursor()

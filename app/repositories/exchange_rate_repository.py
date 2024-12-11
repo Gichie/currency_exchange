@@ -4,6 +4,11 @@ import sqlite3
 class ExchangeRateRepository:
     @staticmethod
     def fetch_all():
+        """
+        Возвращает все записи из таблицы `ExchangeRates` с подробной информацией о базовой и целевой валюте.
+
+        :return: Список строк с информацией об обменных курсах.
+        """
         query = """
             SELECT 
                 er.ID,
@@ -23,7 +28,14 @@ class ExchangeRateRepository:
         return ExchangeRateRepository.execute_query(query)
 
     @staticmethod
-    def fetch_by_pair(base_currency_code, target_currency_code):
+    def fetch_by_pair(base_currency_code: str, target_currency_code: str):
+        """
+        Возвращает запись обменного курса для заданной пары валют.
+
+        :param base_currency_code: Код базовой валюты (например, "USD").
+        :param target_currency_code: Код целевой валюты (например, "EUR").
+        :return: Список строк с информацией об обменном курсе или пустой список, если курс не найден.
+        """
         query = """
             SELECT 
                 er.ID,
@@ -44,7 +56,15 @@ class ExchangeRateRepository:
         return ExchangeRateRepository.execute_query(query, (base_currency_code, target_currency_code))
 
     @staticmethod
-    def insert(base_currency_id, target_currency_id, rate):
+    def insert(base_currency_id: int, target_currency_id: int, rate: float):
+        """
+        Добавляет новую запись обменного курса.
+
+        :param base_currency_id: Идентификатор базовой валюты.
+        :param target_currency_id: Идентификатор целевой валюты.
+        :param rate: Курс обмена.
+        :return: Идентификатор вставленной записи.
+        """
         query = """
             INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate)
             VALUES (?, ?, ?)
@@ -52,7 +72,15 @@ class ExchangeRateRepository:
         return ExchangeRateRepository.execute_query(query, (base_currency_id, target_currency_id, rate))
 
     @staticmethod
-    def update(base_currency_id, target_currency_id, rate):
+    def update(base_currency_id: int, target_currency_id: int, rate: float):
+        """
+        Обновляет существующую запись обменного курса.
+
+        :param base_currency_id: Идентификатор базовой валюты.
+        :param target_currency_id: Идентификатор целевой валюты.
+        :param rate: Новый курс обмена.
+        :return: Количество обновлённых строк.
+        """
         query = """
             UPDATE ExchangeRates
             SET Rate = ?
@@ -61,7 +89,16 @@ class ExchangeRateRepository:
         return ExchangeRateRepository.execute_query(query, (rate, base_currency_id, target_currency_id))
 
     @staticmethod
-    def execute_query(query, params=()):
+    def execute_query(query: str, params: tuple = ()):
+        """
+        Выполняет произвольный SQL-запрос.
+
+        :param query: Текст SQL-запроса.
+        :param params: Параметры для SQL-запроса (по умолчанию пустой кортеж).
+        :return: Результат выполнения запроса.
+                 - Для SELECT: Список строк.
+                 - Для остальных запросов: Идентификатор последней вставленной записи.
+        """
         try:
             conn = sqlite3.connect("database/currency_exchange.db")
             cursor = conn.cursor()

@@ -6,8 +6,16 @@ from app.views.response_builder import ResponseBuilder
 class CurrencyController:
     @staticmethod
     @BaseController.handle_exceptions
-    def add_currency(data):
-        """Добавляет новую валюту."""
+    def add_currency(data: dict):
+        """
+        Добавляет новую валюту.
+
+        :param data: Словарь с данными валюты. Должен содержать:
+            - name (str): Название валюты.
+            - code (str): Код валюты (например, USD).
+            - sign (str): Символ валюты (например, $).
+        :return: JSON-ответ с результатом операции.
+        """
         required_fields = ["name", "code", "sign"]
         validation_error = BaseController.validate_required_fields(data, required_fields)
         if validation_error:
@@ -18,12 +26,20 @@ class CurrencyController:
 
     @staticmethod
     def home():
-        """Возвращает приветственное сообщение."""
+        """
+        Возвращает приветственное сообщение.
+
+        :return: JSON-ответ с сообщением.
+        """
         return ResponseBuilder.json_response({"message": "Welcome to the Currency Exchange API!"}, status=200)
 
     @staticmethod
     def get_all_currencies():
-        """Получает список всех валют."""
+        """
+        Получает список всех валют.
+
+        :return: JSON-ответ со списком валют.
+        """
         try:
             currencies = CurrencyService.get_all_currencies()
             return ResponseBuilder.json_response(currencies, status=200)
@@ -32,8 +48,13 @@ class CurrencyController:
             return ResponseBuilder.error_response("Internal Server Error", status=500)
 
     @staticmethod
-    def get_currency(code):
-        """Получает информацию о валюте по коду."""
+    def get_currency(code: str):
+        """
+        Получает информацию о валюте по её коду.
+
+        :param code: Код валюты (например, USD).
+        :return: JSON-ответ с информацией о валюте или ошибкой.
+        """
         if not code:
             return ResponseBuilder.error_response("Currency code is missing", status=400)
 

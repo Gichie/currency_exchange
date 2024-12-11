@@ -1,5 +1,8 @@
+'''
+Модуль маршрутизации запросов
+'''
 import re
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 
 from app.controllers.currency_cotroller import CurrencyController
 from app.controllers.exchange_rate_controller import ExchangeRateController
@@ -24,9 +27,13 @@ routes = {
     },
 }
 
-def extract_query_params(query_string):
+
+def extract_query_params(query_string: str) -> dict:
     """
-    Альтернативный способ извлечения параметров строки запроса.
+    Извлекает параметры из строки запроса.
+
+    :param query_string: Строка запроса (например, "key1=value1&key2=value2").
+    :return: Словарь параметров.
     """
     if not query_string:
         return {}
@@ -41,9 +48,15 @@ def extract_query_params(query_string):
         print("Invalid query string format")
         return {}
 
-def route_request(path, method, data=None):
+
+def route_request(path: str, method: str, data: dict = None) -> tuple:
     """
     Ищет соответствие маршрута и вызывает соответствующий контроллер.
+
+    :param path: Путь URL (например, "/currency/USD").
+    :param method: HTTP-метод запроса (GET, POST, PATCH).
+    :param data: Тело запроса (опционально для POST/PATCH).
+    :return: Кортеж (response, status, content_type) или HTTP-ответ об ошибке.
     """
     try:
         # Разбираем URL на путь и параметры строки запроса
@@ -92,4 +105,3 @@ def route_request(path, method, data=None):
     except Exception as e:
         print(f"Error in route_request: {e}")
         return ResponseBuilder.error_response("Internal Server Error", status=500)
-

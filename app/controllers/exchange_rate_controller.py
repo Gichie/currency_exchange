@@ -1,3 +1,5 @@
+from typing import Optional
+
 from app.services.exchange_rate_service import ExchangeRateService
 from app.views.response_builder import ResponseBuilder
 
@@ -5,11 +7,20 @@ from app.views.response_builder import ResponseBuilder
 class ExchangeRateController:
     @staticmethod
     def get_all_exchange_rates():
+        '''
+        Возвращает список всех доступных курсов валют.
+        '''
         rates = ExchangeRateService.get_all_exchange_rates()
         return ResponseBuilder.json_response(rates, status=200)
 
     @staticmethod
-    def get_exchange_rate(currency_pair):
+    def get_exchange_rate(currency_pair: str):
+        """
+        Возвращает курс валют для указанной валютной пары.
+
+        :param currency_pair: Валютная пара в формате "USDEUR".
+        :return: JSON-ответ с курсом валют или ошибкой.
+        """
         if not ExchangeRateController.is_valid_currency_pair(currency_pair):
             return ResponseBuilder.error_response("Invalid currency pair", status=400)
         base_currency, target_currency = ExchangeRateController.split_currency_pair(currency_pair)
@@ -19,7 +30,13 @@ class ExchangeRateController:
         return ResponseBuilder.json_response(rate, status=200)
 
     @staticmethod
-    def add_exchange_rate(data):
+    def add_exchange_rate(data: dict):
+        """
+        Добавляет новый курс валют.
+
+        :param data: Словарь с данными, содержащий baseCurrencyCode, targetCurrencyCode и rate.
+        :return: JSON-ответ с результатом операции.
+        """
         required_fields = ['baseCurrencyCode', 'targetCurrencyCode', 'rate']
         validation_error = ExchangeRateController.validate_required_fields(data, required_fields)
         if validation_error:
@@ -32,7 +49,14 @@ class ExchangeRateController:
         return ResponseBuilder.json_response(response, status=status)
 
     @staticmethod
-    def update_exchange_rate(currency_pair, data):
+    def update_exchange_rate(currency_pair: str, data: dict):
+        """
+        Обновляет курс валют для указанной валютной пары.
+
+        :param currency_pair: Валютная пара в формате "USDEUR".
+        :param data: Словарь с данными, содержащий новое значение курса (rate).
+        :return: JSON-ответ с результатом операции.
+        """
         if not ExchangeRateController.is_valid_currency_pair(currency_pair):
             return ResponseBuilder.error_response("Invalid currency pair", status=400)
 
@@ -46,9 +70,14 @@ class ExchangeRateController:
         return ResponseBuilder.json_response(response, status=status)
 
     @staticmethod
-    def transfers_currency(from_currency, to_currency, amount):
+    def transfers_currency(from_currency: str, to_currency: str, amount: float):
         """
         Конвертирует валюту из одной в другую.
+
+        :param from_currency: Код исходной валюты (например, "USD").
+        :param to_currency: Код целевой валюты (например, "EUR").
+        :param amount: Сумма для конвертации.
+        :return: JSON-ответ с результатом конвертации или ошибкой.
         """
         try:
             # Преобразуем значения к верхнему регистру и числу
@@ -68,19 +97,37 @@ class ExchangeRateController:
             return ResponseBuilder.error_response("Internal Server Error", status=500)
 
     @staticmethod
-    def is_valid_currency_pair(currency_pair):
-        """Проверяет, что валютная пара корректна."""
+    def is_valid_currency_pair(currency_pair: str) -> bool:
+        """
+        Конвертирует валюту из одной в другую.
+
+        :param from_currency: Код исходной валюты (например, "USD").
+        :param to_currency: Код целевой валюты (например, "EUR").
+        :param amount: Сумма для конвертации.
+        :return: JSON-ответ с результатом конвертации или ошибкой.
+        """
         return len(currency_pair) == 6
 
     @staticmethod
-    def validate_required_fields(data, required_fields):
-        """Проверяет наличие всех обязательных полей в данных."""
+    def validate_required_fields(data: dict, required_fields: list[str]):
+        """
+        Проверяет наличие всех обязательных полей в данных.
+
+        :param data: Словарь с данными.
+        :param required_fields: Список обязательных полей.
+        :return: None, если все поля есть, иначе JSON-ответ с ошибкой.
+        """
         for field in required_fields:
             if field not in data or not data[field].strip():
                 return ResponseBuilder.error_response(f"Missing required field: {field}", status=400)
         return None  # Если ошибок нет
 
     @staticmethod
-    def split_currency_pair(currency_pair):
-        """Разделяет валютную пару на базовую и целевую валюты."""
+    def split_currency_pair(currency_pair: str) -> tuple[str, str]:
+        """
+        Разделяет валютную пару на базовую и целевую валюты.
+
+        :param currency_pair: Валютная пара в формате "USDEUR".
+        :return: Кортеж из базовой валюты и целевой валюты.
+        """
         return currency_pair[:3].upper(), currency_pair[3:].upper()

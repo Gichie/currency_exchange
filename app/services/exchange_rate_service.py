@@ -1,3 +1,9 @@
+'''
+Этот модуль предоставляет бизнес-логику для работы с обменными курсами.
+Он использует `ExchangeRateRepository` и `CurrencyRepository` для работы с базой данных,
+а также добавляет функции расчета и форматирования данных.
+'''
+
 import sqlite3
 
 from app.models.exchange_rate_model import ExchangeRateModel
@@ -7,17 +13,37 @@ from app.repositories.exchange_rate_repository import ExchangeRateRepository
 
 class ExchangeRateService:
     @staticmethod
-    def get_all_exchange_rates():
+    def get_all_exchange_rates() -> list[dict]:
+        """
+        Возвращает список всех обменных курсов, отформатированных в виде словарей.
+
+        :return: Список словарей с информацией о курсах обмена.
+        """
         rows = ExchangeRateRepository.fetch_all()
         return [ExchangeRateService.format_exchange_rate(row) for row in rows]
 
     @staticmethod
-    def get_exchange_rate_by_pair(base_currency_code, target_currency_code):
+    def get_exchange_rate_by_pair(base_currency_code: str, target_currency_code: str) -> dict | None:
+        """
+        Возвращает курс обмена для заданной пары валют.
+
+        :param base_currency_code: Код базовой валюты.
+        :param target_currency_code: Код целевой валюты.
+        :return: Словарь с информацией о курсе или None, если курс не найден.
+        """
         row = ExchangeRateRepository.fetch_by_pair(base_currency_code, target_currency_code)
         return ExchangeRateService.format_exchange_rate(row[0]) if row else None
 
     @staticmethod
-    def add_exchange_rate(base_currency_code, target_currency_code, rate):
+    def add_exchange_rate(base_currency_code: str, target_currency_code: str, rate: float) -> tuple[dict, int]:
+        """
+        Добавляет новый обменный курс.
+
+        :param base_currency_code: Код базовой валюты.
+        :param target_currency_code: Код целевой валюты.
+        :param rate: Курс обмена.
+        :return: Кортеж (ответ в виде словаря, HTTP-статус).
+        """
         base_currency = CurrencyRepository.fetch_by_code(base_currency_code)
         target_currency = CurrencyRepository.fetch_by_code(target_currency_code)
 
@@ -35,7 +61,15 @@ class ExchangeRateService:
             return {"error": f"Database error: {e}"}, 500
 
     @staticmethod
-    def update_exchange_rate(base_currency_code, target_currency_code, rate):
+    def update_exchange_rate(base_currency_code: str, target_currency_code: str, rate: float) -> tuple[dict, int]:
+        """
+        Обновляет существующий обменный курс.
+
+        :param base_currency_code: Код базовой валюты.
+        :param target_currency_code: Код целевой валюты.
+        :param rate: Новый курс обмена.
+        :return: Кортеж (ответ в виде словаря, HTTP-статус).
+        """
         base_currency = CurrencyRepository.fetch_by_code(base_currency_code)
         target_currency = CurrencyRepository.fetch_by_code(target_currency_code)
 
@@ -49,9 +83,14 @@ class ExchangeRateService:
         return {"message": "Exchange rate updated successfully"}, 200
 
     @staticmethod
-    def calculate_exchange(base_currency_code, target_currency_code, amount):
+    def calculate_exchange(base_currency_code: str, target_currency_code: str, amount: float) -> tuple[dict, int]:
         """
         Рассчитывает обмен валюты.
+
+        :param base_currency_code: Код базовой валюты.
+        :param target_currency_code: Код целевой валюты.
+        :param amount: Сумма для конвертации.
+        :return: Кортеж (ответ в виде словаря, HTTP-статус).
         """
         try:
             # Прямой курс (A -> B)
@@ -93,7 +132,13 @@ class ExchangeRateService:
             return {"error": "Internal Server Error"}, 500
 
     @staticmethod
-    def format_exchange_rate(row):
+    def format_exchange_rate(row: tuple) -> dict:
+        """
+        Преобразует запись о курсе обмена в словарь.
+
+        :param row: Кортеж с информацией о курсе.
+        :return: Словарь с деталями курса обмена.
+        """
         return {
             "id": row[0],
             "base_currency": {"id": row[1], "code": row[2], "name": row[3], "sign": row[4]},
@@ -102,7 +147,18 @@ class ExchangeRateService:
         }
 
     @staticmethod
-    def format_conversion_result(base_currency_code, target_currency_code, rate, amount, converted_amount):
+    def format_conversion_result(base_currency_code: str, target_currency_code: str, rate: float, amount: float,
+                                 converted_amount: float) -> dict:
+        """
+        Форматирует результат конвертации валют.
+
+        :param base_currency_code: Код базовой валюты.
+        :param target_currency_code: Код целевой валюты.
+        :param rate: Курс обмена.
+        :param amount: Исходная сумма.
+        :param converted_amount: Конвертированная сумма.
+        :return: Словарь с результатом конвертации.
+        """
         return {
             "baseCurrency": base_currency_code,
             "targetCurrency": target_currency_code,

@@ -5,12 +5,22 @@ import sqlite3
 class CurrencyModel:
     @staticmethod
     def get_all_currencies():
+        """
+        Возвращает список всех валют из базы данных.
+
+        :return: Список строк, представляющих валюты.
+        """
         query = "SELECT * FROM currencies"
         return get_currencies_from_db(query)
 
     @staticmethod
-    def get_currency_by_code(code):
-        """Возвращает строку валюты по её коду."""
+    def get_currency_by_code(code: str):
+        """
+        Возвращает строку валюты по её коду.
+
+        :param code: Код валюты (например, "USD").
+        :return: Результат запроса (строка) или None, если валюта не найдена.
+        """
         try:
             conn = sqlite3.connect('database/currency_exchange.db')
             cursor = conn.cursor()
@@ -23,8 +33,15 @@ class CurrencyModel:
             raise
 
     @staticmethod
-    def insert_currency(name, code, sign):
-        """Добавляет новую валюту в базу данных."""
+    def insert_currency(name: str, code: str, sign: str):
+        """
+        Добавляет новую валюту в базу данных.
+
+        :param name: Название валюты (например, "US Dollar").
+        :param code: Код валюты (например, "USD").
+        :param sign: Символ валюты (например, "$").
+        :return: None.
+        """
         try:
             conn = sqlite3.connect('database/currency_exchange.db')
             cursor = conn.cursor()
@@ -38,8 +55,14 @@ class CurrencyModel:
             raise
 
 
-def get_currencies_from_db(query, params=()):
-    """Функция для выполнения запросов к базе данных."""
+def get_currencies_from_db(query: str, params: tuple = ()):
+    """
+    Выполняет SQL-запрос к базе данных и возвращает результат.
+
+    :param query: SQL-запрос.
+    :param params: Параметры для запроса (по умолчанию пустой кортеж).
+    :return: Результат запроса в виде списка строк.
+    """
     try:
         conn = sqlite3.connect("database/currency_exchange.db")  # Подключение к базе данных
         cursor = conn.cursor()

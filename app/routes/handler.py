@@ -6,12 +6,15 @@ from app.views.response_builder import ResponseBuilder
 
 
 class MyHandler(BaseHTTPRequestHandler):
-    def handle_request(self, method):
-        """Обрабатывает запросы с маршрутизацией."""
+    def handle_request(self, method: str):
+        """
+        Обрабатывает запросы с маршрутизацией.
+
+        :param method: HTTP-метод запроса (GET, POST, PATCH).
+        """
         try:
             # Парсинг пути и запроса
             parsed_url = urlparse(self.path)
-            path = parsed_url.path
             query_params = parse_qs(parsed_url.query)
 
             # Чтение тела запроса, если это POST/PATCH
@@ -52,8 +55,14 @@ class MyHandler(BaseHTTPRequestHandler):
         """Обрабатывает PATCH-запросы."""
         self.handle_request("PATCH")
 
-    def _send_response(self, response, status, content_type):
-        """Формирует и отправляет HTTP-ответ."""
+    def _send_response(self, response: bytes, status: int, content_type: str):
+        """
+        Формирует и отправляет HTTP-ответ.
+
+        :param response: Тело ответа в виде байтов.
+        :param status: HTTP-статус ответа.
+        :param content_type: Заголовок Content-Type для ответа.
+        """
         self.send_response(status)
         self.send_header("Content-type", content_type)
         self.end_headers()
