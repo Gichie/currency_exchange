@@ -123,31 +123,3 @@ GET /exchange?from_currency=USD&to_currency=EUR&amount=100
     "amount": 100.0,
     "convertedAmount": 110.0
 }
-
-# Структура проекта
-
-currency-exchange-api/
-├── app/
-│   ├── controllers/
-│   │   ├── currency_controller.py
-│   │   ├── exchange_rate_controller.py
-│   ├── models/
-│   │   ├── exchange_rate_model.py
-│   ├── repositories/
-│   │   ├── currency_repository.py
-│   │   ├── exchange_rate_repository.py
-│   ├── services/
-│   │   ├── currency_service.py
-│   │   ├── exchange_rate_service.py
-│   ├── views/
-│   │   ├── response_builder.py
-│   ├── routes/
-│   │   ├── routes.py
-│   ├── utils/
-│   │   ├── validators.py
-│   ├── error_handler.py
-├── database/
-│   ├── currency_exchange.db
-├── main.py
-├── README.md
-├── requirements.txt
