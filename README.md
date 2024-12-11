@@ -31,3 +31,123 @@ cd currency-exchange-api
 Перед запуском поменяйте в файле server.py переменную HOST на свой локальный IP
 Запустите сервер:
 python main.py
+
+### Примеры API запросов
+## Валюты
+# Получение списка всех валют
+
+GET /currencies
+Пример ответа:
+
+[
+    {
+        "id": 1,
+        "name": "US Dollar",
+        "code": "USD",
+        "sign": "$"
+    },
+    {
+        "id": 2,
+        "name": "Euro",
+        "code": "EUR",
+        "sign": "€"
+    }
+]
+
+# Добавление новой валюты
+
+POST /currencies
+Пример тела запроса:
+
+{
+    "name": "Pound Sterling",
+    "code": "GBP",
+    "sign": "£"
+}
+
+Пример ответа:
+
+{
+    "message": "Currency added successfully"
+}
+
+## Обменные курсы
+# Получение курса обмена для пары валют
+
+GET /exchangeRate/USD-EUR
+Пример ответа:
+
+{
+    "id": 1,
+    "base_currency": {
+        "id": 1,
+        "code": "USD",
+        "name": "US Dollar",
+        "sign": "$"
+    },
+    "target_currency": {
+        "id": 2,
+        "code": "EUR",
+        "name": "Euro",
+        "sign": "€"
+    },
+    "rate": 1.1
+}
+
+# Добавление нового курса обмена
+
+POST /exchangeRates
+Пример тела запроса:
+
+{
+    "baseCurrencyCode": "USD",
+    "targetCurrencyCode": "JPY",
+    "rate": 110.5
+}
+
+Пример ответа:
+
+{
+    "message": "Exchange rate added successfully"
+}
+
+# Конвертация валют
+
+GET /exchange?from_currency=USD&to_currency=EUR&amount=100
+Пример ответа:
+
+{
+    "baseCurrency": "USD",
+    "targetCurrency": "EUR",
+    "rate": 1.1,
+    "amount": 100.0,
+    "convertedAmount": 110.0
+}
+
+# Структура проекта
+
+currency-exchange-api/
+├── app/
+│   ├── controllers/
+│   │   ├── currency_controller.py
+│   │   ├── exchange_rate_controller.py
+│   ├── models/
+│   │   ├── exchange_rate_model.py
+│   ├── repositories/
+│   │   ├── currency_repository.py
+│   │   ├── exchange_rate_repository.py
+│   ├── services/
+│   │   ├── currency_service.py
+│   │   ├── exchange_rate_service.py
+│   ├── views/
+│   │   ├── response_builder.py
+│   ├── routes/
+│   │   ├── routes.py
+│   ├── utils/
+│   │   ├── validators.py
+│   ├── error_handler.py
+├── database/
+│   ├── currency_exchange.db
+├── main.py
+├── README.md
+├── requirements.txt
