@@ -28,55 +28,61 @@ cd currency-exchange-api
 
 ### 3. Запуск API
 
-Перед запуском поменяйте в файле server.py переменную HOST на свой локальный IP
-Запустите сервер:
+Перед запуском поменяйте в файле server.py переменную HOST на свой локальный IP. 
+
+Запустите сервер: 
 python main.py
 
-### Примеры API запросов
-## Валюты
-# Получение списка всех валют
+## Примеры API запросов
+### Валюты
+### Получение списка всех валют
 
-GET /currencies
+### GET /currencies
 Пример ответа:
 
+```json
 [
     {
-        "id": 1,
-        "name": "US Dollar",
+        "id": 0,
+        "name": "United States dollar",
         "code": "USD",
         "sign": "$"
     },
     {
-        "id": 2,
+        "id": 0,
         "name": "Euro",
         "code": "EUR",
         "sign": "€"
     }
 ]
+```
 
-# Добавление новой валюты
+### Добавление новой валюты
 
-POST /currencies
+### POST /currencies
 Пример тела запроса:
 
+```json
 {
     "name": "Pound Sterling",
     "code": "GBP",
     "sign": "£"
 }
-
+```
 Пример ответа:
-
+```json
 {
     "message": "Currency added successfully"
 }
+```
 
 ## Обменные курсы
-# Получение курса обмена для пары валют
+### Получение курса обмена для пары валют
 
-GET /exchangeRate/USD-EUR
+### GET /exchangeRate/USDEUR
 Пример ответа:
 
+```json
 {
     "id": 1,
     "base_currency": {
@@ -93,29 +99,30 @@ GET /exchangeRate/USD-EUR
     },
     "rate": 1.1
 }
+```
 
-# Добавление нового курса обмена
+## Добавление нового курса обмена
 
-POST /exchangeRates
+### POST /exchangeRates
 Пример тела запроса:
-
+```json
 {
     "baseCurrencyCode": "USD",
     "targetCurrencyCode": "JPY",
     "rate": 110.5
 }
-
+```
 Пример ответа:
-
+```json
 {
     "message": "Exchange rate added successfully"
 }
+```
+## Конвертация валют
 
-# Конвертация валют
-
-GET /exchange?from_currency=USD&to_currency=EUR&amount=100
+### GET /exchange?from_currency=USD&to_currency=EUR&amount=100
 Пример ответа:
-
+```json
 {
     "baseCurrency": "USD",
     "targetCurrency": "EUR",
@@ -123,3 +130,4 @@ GET /exchange?from_currency=USD&to_currency=EUR&amount=100
     "amount": 100.0,
     "convertedAmount": 110.0
 }
+```
