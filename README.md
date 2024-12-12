@@ -32,11 +32,11 @@ cd currency-exchange-api
 Запустите сервер:
 python main.py
 
-# Примеры API запросов
-## Валюты
+## Примеры API запросов
+### Валюты
 ### Получение списка всех валют
 
-GET /currencies
+### GET /currencies
 Пример ответа:
 
 ```json
@@ -56,11 +56,12 @@ GET /currencies
 ]
 ```
 
-# Добавление новой валюты
+### Добавление новой валюты
 
-POST /currencies
+### POST /currencies
 Пример тела запроса:
 
+```json
 {
     "name": "Pound Sterling",
     "code": "GBP",
@@ -72,13 +73,15 @@ POST /currencies
 {
     "message": "Currency added successfully"
 }
+```
 
 ## Обменные курсы
-# Получение курса обмена для пары валют
+### Получение курса обмена для пары валют
 
-GET /exchangeRate/USD-EUR
+### GET /exchangeRate/USD-EUR
 Пример ответа:
 
+```json
 {
     "id": 1,
     "base_currency": {
@@ -95,29 +98,30 @@ GET /exchangeRate/USD-EUR
     },
     "rate": 1.1
 }
+```
 
-# Добавление нового курса обмена
+## Добавление нового курса обмена
 
-POST /exchangeRates
+### POST /exchangeRates
 Пример тела запроса:
-
+```json
 {
     "baseCurrencyCode": "USD",
     "targetCurrencyCode": "JPY",
     "rate": 110.5
 }
-
+```
 Пример ответа:
-
+```json
 {
     "message": "Exchange rate added successfully"
 }
+```
+## Конвертация валют
 
-# Конвертация валют
-
-GET /exchange?from_currency=USD&to_currency=EUR&amount=100
+### GET /exchange?from_currency=USD&to_currency=EUR&amount=100
 Пример ответа:
-
+```json
 {
     "baseCurrency": "USD",
     "targetCurrency": "EUR",
@@ -125,3 +129,4 @@ GET /exchange?from_currency=USD&to_currency=EUR&amount=100
     "amount": 100.0,
     "convertedAmount": 110.0
 }
+```
