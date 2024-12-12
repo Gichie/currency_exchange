@@ -78,7 +78,7 @@ python main.py
 ## Обменные курсы
 ### Получение курса обмена для пары валют
 
-### GET /exchangeRate/USD-EUR
+### GET /exchangeRate/USDEUR
 Пример ответа:
 
 ```json
