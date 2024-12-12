@@ -39,15 +39,16 @@ python main.py
 GET /currencies
 Пример ответа:
 
+```json
 [
     {
-        "id": 1,
-        "name": "US Dollar",
+        "id": 0,
+        "name": "United States dollar",
         "code": "USD",
         "sign": "$"
     },
     {
-        "id": 2,
+        "id": 0,
         "name": "Euro",
         "code": "EUR",
         "sign": "€"
