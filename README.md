@@ -67,9 +67,9 @@ python main.py
     "code": "GBP",
     "sign": "£"
 }
-
+```
 Пример ответа:
-
+```json
 {
     "message": "Currency added successfully"
 }
